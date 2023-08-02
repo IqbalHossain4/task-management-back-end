@@ -24,17 +24,38 @@ async function run() {
     await client.connect();
     const taskCollection = client.db("taskManagement").collection("taskList");
 
+    //get task
+    app.get("/tasks", async (req, res) => {
+      const task = await taskCollection.find().toArray();
+      res.send(task);
+    });
+
     //add Task
     app.post("/addTask", async (req, res) => {
       const task = req.body;
       const result = await taskCollection.insertOne(task);
       res.send(result);
     });
-    //get task
-    app.get("/tasks", async (req, res) => {
-      const task = await taskCollection.find().toArray();
-      res.send(task);
+
+    //update status
+    app.patch("/taskStatus/:id", async (req, res) => {
+      const id = req.params.id;
+      const user = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updateStatus = {
+        $set: {
+          status: user.status,
+        },
+      };
+      const result = await taskCollection.updateOne(
+        filter,
+        updateStatus,
+        option
+      );
+      res.send(result);
     });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
