@@ -24,17 +24,17 @@ async function run() {
     await client.connect();
     const taskCollection = client.db("taskManagement").collection("taskList");
 
-    //get task
-    app.get("/tasks", async (req, res) => {
-      const task = await taskCollection.find().toArray();
-      res.send(task);
-    });
-
     //add Task
     app.post("/addTask", async (req, res) => {
       const task = req.body;
       const result = await taskCollection.insertOne(task);
       res.send(result);
+    });
+
+    //get task
+    app.get("/tasks", async (req, res) => {
+      const task = await taskCollection.find().toArray();
+      res.send(task);
     });
 
     //update status
@@ -53,6 +53,14 @@ async function run() {
         updateStatus,
         option
       );
+      res.send(result);
+    });
+
+    //Task Delete
+    app.delete("/taskDelete/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = await taskCollection.deleteOne(filter);
       res.send(result);
     });
 
