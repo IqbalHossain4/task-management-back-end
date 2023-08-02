@@ -37,6 +37,31 @@ async function run() {
       res.send(task);
     });
 
+    //get specific Task
+    app.get("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = await taskCollection.findOne(filter);
+      res.send(result);
+    });
+
+    //Edit Task
+
+    app.patch("/editTask/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const editValue = req.body;
+      const options = { upsert: true };
+      const editDoc = {
+        $set: {
+          title: editValue.title,
+          description: editValue.description,
+        },
+      };
+      const result = await taskCollection.updateOne(filter, editDoc, options);
+      res.send(result);
+    });
+
     //update status
     app.patch("/taskStatus/:id", async (req, res) => {
       const id = req.params.id;
